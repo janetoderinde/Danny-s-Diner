@@ -59,7 +59,7 @@ FROM dannys_diner.sales AS s
 
 QUESTION 5: Which item is the most popular for each customer? 
 
-Solution: The following functions were used - WITH(),DENSE_RANK() OVER. A new table named r in which the customers were ranked by the Count of product bought (count) was created. Then SELECT customer_id, product_name, count.
+Solution: The following functions were used - WITH(),DENSE_RANK() OVER. A rank table named r in which the customers were ranked by the Count of product bought (count) was created. Then SELECT customer_id, product_name, count.
 ```SQL
 WITH r AS 
 	(SELECT s.customer_id,
@@ -69,7 +69,7 @@ WITH r AS
 	FROM dannys_diner.menu AS m 
 	JOIN dannys_diner.sales s 
 	ON s.product_id = m.product_id
-	GROUP BY s.customer_id, s.product_id, m.product_name) 
+	GROUP BY s.customer_id, m.product_name) 
 SELECT customer_id, product_name, count
 FROM r
 WHERE r = 1;
@@ -77,4 +77,38 @@ WHERE r = 1;
 
 Question 6: Which item was purchased first by the customer after they became a member?
 
+Solution: I created a rank table- 'firsts' where customers were ranked (using DENSE_RANK()) by their order date. Then it was filtered using the WHERE clause to have order_date greater than or equal to join_date (date the customer became a member)
+```SQL
+ WITH firsts AS
+	(SELECT s.customer_id,
+       m1.product_name,
+	DENSE_RANK() OVER (PARTITION BY s.customer_id ORDER BY s.order_date) AS firsts
+	FROM dannys_diner.sales AS s
+	JOIN dannys_diner.menu AS m1 
+  	 ON s.product_id = m1.product_id
+	JOIN dannys_diner.members AS m2
+ 	ON m2.customer_id = s.customer_id
+	WHERE s.order_date >= m2.join_date)
+SELECT * FROM firsts
+WHERE firsts = 1;
+```
+
+Question 7: Which item was purchased just before the customer became a member?
+
+Solution:
+```SQL
+ WITH firsts AS
+(
+SELECT s.customer_id,
+       m1.product_name,
+	DENSE_RANK() OVER (PARTITION BY s.customer_id ORDER BY s.order_date) AS firsts
+FROM dannys_diner.sales AS s
+JOIN dannys_diner.menu AS m1 
+   ON s.product_id = m1.product_id
+JOIN dannys_diner.members AS m2
+ ON m2.customer_id = s.customer_id
+WHERE s.order_date < m2.join_date)
+SELECT * FROM firsts
+WHERE firsts = 1;
+```
 
