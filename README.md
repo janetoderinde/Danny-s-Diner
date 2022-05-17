@@ -55,6 +55,6 @@ FROM dannys_diner.sales AS s
 	GROUP BY product_name 
     ORDER BY total_number DESC
     LIMIT 1;
-    ```
+```
 
 
