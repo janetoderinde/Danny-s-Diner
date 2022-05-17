@@ -1,5 +1,5 @@
 # Danny-s-Diner
-8 Week SQL Challenge - Week 1
+8 Week SQL Challenge - Case Study 1
 ![image](https://user-images.githubusercontent.com/98917179/168800087-a107a92f-0be0-43d2-9452-bb0c4ac12687.png)
 This is my solution to Danny Ma's 8 Week SQL Challenge Case Study 1 using PostgreSQL. Danny wants to use data from his restaurant to answer some questions about his customers. He plans on using the insights derived to make better business decisions. You could check out the challenge here: https://8weeksqlchallenge.com/case-study-1/
 
@@ -24,7 +24,22 @@ SELECT customer_id, SUM(price) AS total_amount
 	ORDER BY customer_id;
 ```
  
- Question 2:
-SELECT customer_id, SUM(price) AS money_spent FROM sales 
-	JOIN menu ON menu.product_id = sales.product_id
-	GROUP BY customer_id
+ Question 2: How many days has each customer visited the restaurant?
+
+Solution: Using COUNT() and DISTINCT() function, I got the different number of days each customer visited the restaurant by customer_id.
+```SQL
+SELECT customer_id, COUNT(DISTINCT(order_date))
+	FROM dannys_diner.sales
+	GROUP BY customer_id;
+```
+
+Question 3: What was the first item from the menu purchased by each customer?
+
+Solution: To answer this question, a subquery was introduced. Menu and Sales table were also joined to get the product_name. However, one of the customers had two items from the menu on their first visit to the restaurant. It's not possible to determine which item was gotten first since we do not have the needed data. 
+```SQL
+SELECT DISTINCT(customer_id), product_name FROM dannys_diner.sales AS s
+	JOIN dannys_diner.menu AS m ON m.product_id = s.product_id
+	WHERE s.order_date IN (SELECT MIN(order_date) FROM dannys_diner.sales)
+    GROUP BY customer_id, product_name
+    ORDER BY customer_id;
+```
