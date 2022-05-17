@@ -54,7 +54,27 @@ FROM dannys_diner.sales AS s
     ON s.product_id = m.product_id
 	GROUP BY product_name 
     ORDER BY total_number DESC
-    LIMIT 1;
+    LIMIT 1;a
 ```
+
+QUESTION 5: Which item is the most popular for each customer? 
+
+Solution: The following functions were used - WITH(),DENSE_RANK() OVER. A new table named r in which the customers were ranked by the Count of product bought (count) was created. Then SELECT customer_id, product_name, count.
+```SQL
+WITH r AS 
+	(SELECT s.customer_id,
+		m.product_name,
+		COUNT(s.product_id) as count,
+        DENSE_RANK() OVER (PARTITION BY s.customer_id ORDER BY COUNT(s.product_id) DESC) AS r
+	FROM dannys_diner.menu AS m 
+	JOIN dannys_diner.sales s 
+	ON s.product_id = m.product_id
+	GROUP BY s.customer_id, s.product_id, m.product_name) 
+SELECT customer_id, product_name, count
+FROM r
+WHERE r = 1;
+```
+
+Question 6: Which item was purchased first by the customer after they became a member?
 
 
