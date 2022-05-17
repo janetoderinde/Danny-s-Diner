@@ -18,7 +18,7 @@ Solution: Here, I joined two tables: sales and menu. Returned customer_id and SU
 '''SQL
 SELECT customer_id, SUM(price) AS total_amount FROM dannys_diner.sales AS sales 
 	JOIN dannys_diner.menu AS menu ON sales.product_id = menu.product_id
-	GROUP BY customer_id:
+	GROUP BY customer_id;
 '''
  
  Question 2:
