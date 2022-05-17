@@ -33,6 +33,21 @@ SELECT customer_id, COUNT(DISTINCT(order_date))
 	GROUP BY customer_id;
 ```
 
+Question 4: What is the most purchased item on the menu and how many times was it purchased by ALL customers?
+
+Solution: Here, I joined sales and menu table on product_id to return the product_name with the highest total_number of times purchased. 
+```SQL
+SELECT product_name, COUNT(product_name) AS total_number
+FROM dannys_diner.sales AS s 
+	JOIN dannys_diner.menu AS m 
+    ON s.product_id = m.product_id
+	GROUP BY product_name 
+    ORDER BY total_number DESC
+    LIMIT 1;
+    ```
+    
+Question 5:
+
 Question 3: What was the first item from the menu purchased by each customer?
 
 Solution: To answer this question, a subquery was introduced. Menu and Sales table were also joined to get the product_name. However, one of the customers had two items from the menu on their first visit to the restaurant. It's not possible to determine which item was gotten first since we do not have the needed data. 
