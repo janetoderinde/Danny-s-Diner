@@ -21,3 +21,6 @@ SELECT customer_id, SUM(price) AS total_amount FROM dannys_diner.sales AS sales
 
  
  Question 2:
+SELECT customer_id, SUM(price) AS money_spent FROM sales 
+	JOIN menu ON menu.product_id = sales.product_id
+	GROUP BY customer_id
