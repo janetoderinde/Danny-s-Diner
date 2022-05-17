@@ -15,13 +15,9 @@ Using PostgreSQL, I provided the following solution:
 Question 1: What is the total amount each customer spent at the restaurant?
 
 Solution: Here, I joined two tables: sales and menu. Returned customer_id and SUM of prices aliased as total_amount, then grouped by customer_id.
+SELECT customer_id, SUM(price) AS total_amount FROM dannys_diner.sales AS sales 
+	JOIN dannys_diner.menu AS menu ON sales.product_id = menu.product_id
+	GROUP BY customer_id:
 
-SELECT customer_id, 
-  		SUM(price) AS total_amount
- FROM dannys_diner.sales AS sales
- JOIN dannys_diner.menu AS menu
- ON sales.product_id = menu.product_id
- GROUP BY customer_id
- ORDER BY customer_id;
  
  Question 2:
