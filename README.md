@@ -101,7 +101,7 @@ Solution:
 (
 SELECT s.customer_id,
        m1.product_name,
-	DENSE_RANK() OVER (PARTITION BY s.customer_id ORDER BY s.order_date) AS firsts
+ DENSE_RANK() OVER (PARTITION BY s.customer_id ORDER BY s.order_date DESC) AS firsts, s.order_date, m2.join_date
 FROM dannys_diner.sales AS s
 JOIN dannys_diner.menu AS m1 
    ON s.product_id = m1.product_id
@@ -112,3 +112,66 @@ SELECT * FROM firsts
 WHERE firsts = 1;
 ```
 
+Question 8: What are the total items and amount spent for each member before they became a member?
+
+Solution: To answer this question, I joined the sales, menu , and members table. Then using the WHERE clause, I filtered the returned rows to have order_date less than join_date.
+```SQL
+SELECT s.customer_id, 
+ count(s.product_id) AS total_items, 
+        SUM(price) AS amount_spent
+FROM dannys_diner.sales AS s
+JOIN dannys_diner.menu AS m1 ON m1.product_id = s.product_id
+JOIN dannys_diner.members AS m2 ON s.customer_id = m2.customer_id
+WHERE s.order_date < m2.join_date
+GROUP BY s.customer_id
+ORDER BY s.customer_id;
+```
+
+Question 9: If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
+
+Solution: CASE WHEN, and THEN worked for this. A new table: points_gained was created from menu. This was then JOINed to sales table on product_id to get the customer_id and SUM of points gained.
+```SQL
+WITH points_gained AS 
+(
+SELECT *,
+    CASE 
+    WHEN m.product_name = 'sushi' THEN price * 20
+    WHEN m.product_name != 'sushi' THEN price * 10
+    END AS points_gained
+FROM dannys_diner.menu AS m
+    )
+SELECT customer_id, SUM(points_gained) AS total_points_gained
+FROM dannys_diner.sales AS s
+JOIN points_gained AS p ON p.product_id = s.product_id
+GROUP BY s.customer_id
+ORDER BY s.customer_id;
+```
+
+Question 10:In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customers A and B have at the end of January?
+
+Solution: A new table: points was created here. Calculated order date minus join date to get the difference in days. With the CASE() WHEN and THEN functions, I got to multiply points accordingly. Finally, the EXTRACT function for the month of January.
+
+```SQL
+SELECT customer_id, SUM(total_points)
+FROM 
+   (WITH points AS
+               (SELECT s.customer_id, 
+               (s.order_date - m2.join_date) AS first_week,
+                  m1.price,
+                  m1.product_name,
+                s.order_date
+                FROM dannys_diner.sales AS s
+             JOIN dannys_diner.menu AS m1 ON s.product_id =                 m1.product_id
+              JOIN dannys_diner.members AS m2
+              ON m2.customer_id = s.customer_id)
+            SELECT customer_id,
+         CASE   
+             WHEN first_week BETWEEN 0 AND 7 THEN price * 20
+             WHEN (first_week > 7 OR first_week < 0) AND product_name = 'sushi' THEN price * 20
+             WHEN (first_week > 7 OR first_week < 0) AND product_name != 'sushi' THEN price * 10
+         END AS total_points,
+        order_date
+FROM points
+WHERE EXTRACT(MONTH FROM order_date) = 1) as t
+GROUP BY customer_id;
+```
