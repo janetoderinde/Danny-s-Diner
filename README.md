@@ -129,7 +129,7 @@ ORDER BY s.customer_id;
 
 Question 9: If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
 
-Solution: CASE WHEN, and THEN worked for this. A new table: points_gained was created from menu. This was then JOINed to sales table on product_id to get the customer_id and SUM of points gained.
+Solution: CASE WHEN, and THEN worked for this. A new table: points_gained was created from the menu. This was then JOINed to the sales table on product_id to get the customer_id and SUM of points gained.
 ```SQL
 WITH points_gained AS 
 (
@@ -149,7 +149,7 @@ ORDER BY s.customer_id;
 
 Question 10:In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customers A and B have at the end of January?
 
-Solution: A new table: points was created here. Calculated order date minus join date to get the difference in days. With the CASE() WHEN and THEN functions, I got to multiply points accordingly. Finally, the EXTRACT function for the month of January.
+Solution: A new table of points was created here. Calculated order date minus join date to get the difference in days. With the CASE() WHEN and THEN functions, I got to multiply points accordingly. Finally, the EXTRACT function for January.
 
 ```SQL
 SELECT customer_id, SUM(total_points)
